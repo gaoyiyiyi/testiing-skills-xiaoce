@@ -1,0 +1,4 @@
+interface:
+  display_name: "Test Case XMind"
+  short_description: "Generate test cases as XMind maps"
+  default_prompt: "Use $test-case-xmind to generate structured test cases from product and technical documents, then export an XMind file."
