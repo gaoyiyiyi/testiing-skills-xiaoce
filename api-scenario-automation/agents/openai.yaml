@@ -1,0 +1,4 @@
+interface:
+  display_name: "API Scenario Automation"
+  short_description: "Generate scenario-based API automation"
+  default_prompt: "Use $api-scenario-automation to generate scenario-based API automation from interface docs and test cases."
