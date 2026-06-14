@@ -1,16 +1,27 @@
-# testiing-skills-xiaoce
+# testing-skills-xiaoce
 
-这是一个用于 Codex 的软件测试技能仓库，面向测试学习者、测试工程师和测试开发练习场景。
+这是一个面向 Codex 的软件测试技能仓库，适合测试学习者、测试工程师和测试开发练习场景使用。
 
-当前包含：
+当前包含 3 个 skill：
 
 - `test-case-xmind`：根据需求文档、前端技术文档、后端技术文档、交互稿、接口文档等资料生成结构化测试用例，并导出 `.xmind` 文件。
-- `api-scenario-automation`：根据接口文档、测试用例、OpenAPI/Swagger/Postman/Apipost 导出、后端路由或 Markdown 接口说明，生成场景式 API 自动化测试。
+- `api-scenario-automation`：根据接口文档、测试用例、OpenAPI、Swagger、Postman、Apipost、后端路由或 Markdown 接口说明，生成场景式接口自动化测试。
 - `ui-scenario-automation`：根据测试用例、需求文档、UI 稿、截图或本地页面，使用 Codex 内置浏览器执行 UI 场景验证，并输出报告和截图。
+
+## 适用场景
+
+这个仓库适合用来学习和实践 AI 辅助测试：
+
+- 根据项目资料生成测试用例。
+- 从测试用例中提取适合接口层验证的业务流程。
+- 使用 Codex 浏览器执行简单 UI 场景验证。
+- 在现有规则和脚本基础上改造成适合自己项目的测试工作流。
+
+这些 skill 不是完整的企业级测试平台。它们更适合作为学习模板、个人项目测试辅助工具，或者二次开发的起点。
 
 ## 安装
 
-将 skill 目录复制到本机 Codex skills 目录：
+将需要的 skill 目录复制到本机 Codex skills 目录：
 
 ```bash
 cp -R test-case-xmind ~/.codex/skills/
@@ -22,10 +33,12 @@ cp -R ui-scenario-automation ~/.codex/skills/
 
 ## 使用方式
 
+### 生成测试用例
+
 向 Codex 提供一个或多个项目文档，然后发起请求，例如：
 
 ```text
-使用 $test-case-xmind，根据这些需求文档、前端技术文档、后端技术文档和交互稿生成测试用例，并导出 xmind 文件。
+使用 $test-case-xmind，根据这些需求文档、前端技术文档、后端技术文档和交互稿生成测试用例，并导出 XMind 文件。
 ```
 
 Codex 会执行：
@@ -34,12 +47,14 @@ Codex 会执行：
 2. 生成结构化 `cases.json`。
 3. 校验用例格式。
 4. 导出 `.xmind` 文件。
-5. 结束操作。
+5. 返回生成结果。
 
-生成接口自动化时，可以提供接口文档、后端代码、OpenAPI/Swagger/Postman/Apipost 导出或已有测试用例，然后发起请求，例如：
+### 生成接口自动化
+
+生成接口自动化时，可以提供接口文档、后端代码、OpenAPI、Swagger、Postman、Apipost 或已有测试用例，例如：
 
 ```text
-使用 $api-scenario-automation，根据 docs/接口文档.md 和 test-cases/cases.json 生成 5 个核心业务流 API 自动化场景，base_url 是 http://127.0.0.1:8080，输出到 api-automation。
+使用 $api-scenario-automation，根据 docs/接口文档.md 和 test-cases/cases.json 生成 5 个核心业务流接口自动化场景，base_url 是 http://127.0.0.1:8080，输出到 api-automation。
 ```
 
 Codex 会执行：
@@ -47,13 +62,15 @@ Codex 会执行：
 1. 阅读接口资料和测试用例。
 2. 生成 `scenarios.yaml` 场景文件。
 3. 校验场景文件格式。
-4. 导出 `unittest`/`pytest` 兼容的 API 自动化测试。
+4. 导出 `unittest`/`pytest` 兼容的接口自动化测试。
 5. 在目标服务可运行时执行测试并反馈结果。
 
-生成 UI 自动化验证时，可以提供 `cases.json`、需求文档、UI 稿、页面截图或本地页面地址，然后发起请求，例如：
+### 生成 UI 场景验证
+
+生成 UI 自动化验证时，可以提供 `cases.json`、需求文档、UI 稿、页面截图或本地页面地址，例如：
 
 ```text
-使用 $ui-scenario-automation，根据 test-cases/cases.json 和当前页面 http://127.0.0.1:4273 生成 UI 场景，并用 Codex 浏览器执行验证，输出报告和截图。
+使用 $ui-scenario-automation，根据 test-cases/cases.json 和当前页面 http://127.0.0.1:8080 生成 UI 场景，并用 Codex 浏览器执行验证，输出报告和截图。
 ```
 
 Codex 会执行：
@@ -96,8 +113,7 @@ test-case-xmind/
 │   └── openai.yaml
 ├── references/
 │   ├── case_schema.md
-│   ├── coverage_rules.md
-│   └── demo_flow.md
+│   └── coverage_rules.md
 └── scripts/
     ├── export_xmind.py
     └── validate_cases.py
@@ -139,6 +155,6 @@ python3 api-scenario-automation/scripts/validate_scenarios.py scenarios.yaml
 python3 api-scenario-automation/scripts/export_pytest.py scenarios.yaml --output api-automation
 ```
 
-脚本只使用 Python 标准库，不需要额外安装依赖。生成的 API 自动化测试也只使用 Python 标准库，可通过 `python3 -m unittest` 运行；如果项目安装了 pytest，也可以被 pytest 收集执行。
+脚本只使用 Python 标准库，不需要额外安装依赖。生成的接口自动化测试也只使用 Python 标准库，可通过 `python3 -m unittest` 运行；如果项目安装了 pytest，也可以被 pytest 收集执行。
 
 `ui-scenario-automation` 默认不要求用户安装 Playwright。它优先使用 Codex 内置浏览器执行 UI 场景；只有在用户需要长期沉淀、CI 回归或团队协作脚本时，才建议导出 Playwright。

@@ -1,66 +1,66 @@
-# UI Scenario Schema
+# UI 场景结构说明
 
-Write `ui-scenarios.json` as a JSON document. JSON keeps the format dependency-free and easy for beginners to inspect.
+`ui-scenarios.json` 使用 JSON 编写。JSON 便于初学者查看，也不需要额外格式解析依赖。
 
-## Root Object
+## 根对象
 
-Required:
+必填字段：
 
-- `title`: string.
-- `base_url`: string. Can be a local URL such as `http://127.0.0.1:4273`.
-- `scenarios`: non-empty array of scenario objects.
+- `title`：字符串，表示这组 UI 场景的标题。
+- `base_url`：字符串，可以是本地地址，例如 `http://127.0.0.1:8080`。
+- `scenarios`：非空数组，包含一个或多个场景对象。
 
-Optional:
+可选字段：
 
-- `source_cases`: path to source `cases.json`.
-- `variables`: object of global values, such as test username or generated names.
-- `output_dir`: default `ui-check-report`.
+- `source_cases`：来源 `cases.json` 路径。
+- `variables`：对象，存放全局变量，例如测试用户名或生成名称。
+- `output_dir`：输出目录，默认 `ui-check-report`。
 
-## Scenario Object
+## 场景对象
 
-Required:
+必填字段：
 
-- `name`: string.
-- `steps`: non-empty array of step objects.
+- `name`：字符串，场景名称。
+- `steps`：非空数组，包含一个或多个步骤对象。
 
-Optional:
+可选字段：
 
-- `source_case`: source case title or ID.
-- `description`: string.
-- `preconditions`: array of strings.
-- `priority`: `P0`, `P1`, `P2`, or `P3`.
-- `variables`: object merged over root variables.
+- `source_case`：来源用例标题或 ID。
+- `description`：字符串，场景说明。
+- `preconditions`：字符串数组，前置条件。
+- `priority`：`P0`、`P1`、`P2` 或 `P3`。
+- `variables`：对象，场景级变量，会合并到根对象变量中。
 
-## Step Object
+## 步骤对象
 
-Required:
+必填字段：
 
-- `id`: stable identifier, letters/digits/underscore/hyphen only.
-- `name`: human-readable step name.
-- `action`: one of `goto`, `click`, `fill`, `select`, `check`, `uncheck`, `press`, `wait_for`, `assert`, `screenshot`, `scroll`.
+- `id`：稳定标识，只允许字母、数字、下划线和连字符。
+- `name`：可读的步骤名称。
+- `action`：动作类型，可选值为 `goto`、`click`、`fill`、`select`、`check`、`uncheck`、`press`、`wait_for`、`assert`、`screenshot`、`scroll`。
 
-Action fields:
+动作相关字段：
 
-- `goto.path`: path appended to `base_url`, for example `/login`.
-- `target`: object describing the element to act on.
-- `value`: string/number/boolean for fill, select, press, or variable assertions.
-- `assertions`: array of assertion objects.
-- `screenshot`: optional file name hint for evidence.
+- `goto.path`：追加到 `base_url` 后的路径，例如 `/login`。
+- `target`：描述要操作或检查的元素。
+- `value`：用于输入、选择、按键或变量断言的值。
+- `assertions`：断言对象数组。
+- `screenshot`：可选截图文件名。
 
-## Target Object
+## 目标元素对象
 
-Prefer stable, user-facing locators:
+优先使用稳定、面向用户的定位方式：
 
 ```json
-{"role": "button", "name": "提交答案"}
+{"role": "button", "name": "提交"}
 {"label": "用户名"}
 {"placeholder": "请输入手机号"}
-{"text": "小测晓测点评"}
-{"test_id": "submit-answer"}
+{"text": "提交成功"}
+{"test_id": "submit-button"}
 {"css": ".submit-button"}
 ```
 
-Locator priority:
+定位方式优先级：
 
 1. `role` + `name`
 2. `label`
@@ -69,11 +69,11 @@ Locator priority:
 5. `test_id`
 6. `css`
 
-Avoid XPath unless there is no practical alternative.
+除非没有其他实用方式，否则避免使用 XPath。
 
-## Assertions
+## 断言
 
-Supported assertion types:
+支持的断言类型：
 
 ```json
 {"type": "text_visible", "text": "提交成功"}
@@ -81,54 +81,62 @@ Supported assertion types:
 {"type": "url_contains", "expected": "/result"}
 {"type": "element_visible", "target": {"role": "button", "name": "提交"}}
 {"type": "element_hidden", "target": {"text": "错误提示"}}
-{"type": "element_enabled", "target": {"role": "button", "name": "下一题"}}
+{"type": "element_enabled", "target": {"role": "button", "name": "下一步"}}
 {"type": "element_disabled", "target": {"role": "button", "name": "提交"}}
-{"type": "input_value", "target": {"label": "用户名"}, "expected": "demo"}
-{"type": "count", "target": {"css": ".question-card"}, "expected": 5}
+{"type": "input_value", "target": {"label": "用户名"}, "expected": "test_user"}
+{"type": "count", "target": {"css": ".result-item"}, "expected": 5}
 ```
 
-## Minimal Example
+## 最小示例
 
 ```json
 {
-  "title": "AI Interviewer Lite UI scenarios",
-  "base_url": "http://127.0.0.1:4273",
+  "title": "登录功能 UI 场景",
+  "base_url": "http://127.0.0.1:8080",
   "source_cases": "test-cases/cases.json",
   "scenarios": [
     {
-      "name": "提交答案后展示点评",
+      "name": "使用有效账号登录成功",
       "priority": "P0",
       "steps": [
         {
-          "id": "open_home",
-          "name": "打开首页",
+          "id": "open_login",
+          "name": "打开登录页",
           "action": "goto",
-          "path": "/",
+          "path": "/login",
           "assertions": [
-            {"type": "text_visible", "text": "小测晓测"}
+            {"type": "text_visible", "text": "登录"}
           ],
-          "screenshot": "01-home.png"
+          "screenshot": "01-login.png"
         },
         {
-          "id": "choose_demo_answer",
-          "name": "一键选择正确答案",
+          "id": "fill_username",
+          "name": "输入用户名",
+          "action": "fill",
+          "target": {"label": "用户名"},
+          "value": "test_user"
+        },
+        {
+          "id": "fill_password",
+          "name": "输入密码",
+          "action": "fill",
+          "target": {"label": "密码"},
+          "value": "test_password"
+        },
+        {
+          "id": "submit_login",
+          "name": "提交登录表单",
           "action": "click",
-          "target": {"text": "一键选正确答案"}
+          "target": {"role": "button", "name": "登录"}
         },
         {
-          "id": "submit_answer",
-          "name": "提交答案",
-          "action": "click",
-          "target": {"role": "button", "name": "提交答案"}
-        },
-        {
-          "id": "assert_feedback",
-          "name": "校验点评展示",
+          "id": "assert_login_success",
+          "name": "校验登录成功",
           "action": "assert",
           "assertions": [
-            {"type": "text_visible", "text": "小测晓测点评"}
+            {"type": "text_visible", "text": "欢迎"}
           ],
-          "screenshot": "02-result.png"
+          "screenshot": "02-home.png"
         }
       ]
     }

@@ -1,4 +1,4 @@
 interface:
-  display_name: "UI Scenario Automation"
-  short_description: "Run browser-based UI scenario checks"
-  default_prompt: "Use $ui-scenario-automation to generate and execute UI scenarios in the Codex browser."
+  display_name: "UI 场景自动化"
+  short_description: "使用浏览器执行 UI 场景验证"
+  default_prompt: "使用 $ui-scenario-automation 生成 UI 场景，并在 Codex 浏览器中执行验证。"

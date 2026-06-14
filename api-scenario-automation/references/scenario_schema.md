@@ -1,125 +1,127 @@
-# Scenario DSL Schema
+# 场景 DSL 结构说明
 
-Write `scenarios.yaml` as JSON-compatible YAML: a JSON document saved with `.yaml` is valid. This keeps the skill dependency-free while remaining easy to transform later.
+`scenarios.yaml` 使用 JSON 兼容 YAML 编写。也就是说，一个合法 JSON 文档保存为 `.yaml` 也可以被脚本读取。这样可以减少依赖，同时方便后续转换成其他格式。
 
-## Root Object
+## 根对象
 
-Required:
+必填字段：
 
-- `title`: string.
-- `scenarios`: non-empty array of scenario objects.
+- `title`：字符串，表示这组接口自动化场景的标题。
+- `scenarios`：非空数组，包含一个或多个场景对象。
 
-Optional:
+可选字段：
 
-- `base_url`: string. Can be overridden at runtime by `API_BASE_URL`.
-- `variables`: object of global variables.
+- `base_url`：字符串。运行时可通过环境变量 `API_BASE_URL` 覆盖。
+- `variables`：对象。全局变量，可被所有场景使用。
 
-## Scenario Object
+## 场景对象
 
-Required:
+必填字段：
 
-- `name`: string.
-- `steps`: non-empty array of step objects.
+- `name`：字符串，场景名称。
+- `steps`：非空数组，包含一个或多个步骤对象。
 
-Optional:
+可选字段：
 
-- `description`: string.
-- `variables`: object merged over root variables.
+- `description`：字符串，场景说明。
+- `variables`：对象，场景级变量，会覆盖或补充根对象变量。
 
-## Step Object
+## 步骤对象
 
-Required:
+必填字段：
 
-- `id`: stable identifier, letters/digits/underscore/hyphen only.
-- `name`: human-readable step name.
-- `request`: object with:
-  - `method`: GET, POST, PUT, PATCH, DELETE.
-  - `path`: string. Supports `{{ variable }}` templates.
+- `id`：稳定标识，只允许字母、数字、下划线和连字符。
+- `name`：可读的步骤名称。
+- `request`：请求对象，包含：
+  - `method`：GET、POST、PUT、PATCH、DELETE。
+  - `path`：字符串，支持 `{{ variable }}` 变量模板。
 
-Optional:
+可选字段：
 
-- `request.query`: object. Query parameters.
-- `request.headers`: object. Request headers.
-- `request.body`: object, array, string, number, boolean, or null.
-- `extract`: object mapping variable names to JSON paths, for example `"question_id": "$.data.id"`.
-- `assert`: array of assertion objects.
+- `request.query`：对象，查询参数。
+- `request.headers`：对象，请求头。
+- `request.body`：对象、数组、字符串、数字、布尔值或 null。
+- `extract`：对象，把响应中的字段提取成变量，例如 `"item_id": "$.data.id"`。
+- `assert`：数组，包含一个或多个断言对象。
 
-## Supported Assertions
+## 支持的断言
 
-Use at least one status assertion for every request.
+每个请求至少需要一个状态码断言。
 
 ```json
 {"type": "status", "expected": 200}
 {"type": "json_path_exists", "path": "$.data.id"}
-{"type": "json_path_not_exists", "path": "$.data.explanation"}
-{"type": "json_equals", "path": "$.data.correct", "expected": true}
+{"type": "json_path_not_exists", "path": "$.data.error"}
+{"type": "json_equals", "path": "$.data.success", "expected": true}
 {"type": "json_not_equals", "path": "$.data.id", "expected": null}
-{"type": "json_contains", "path": "$.message", "expected": "请选择"}
-{"type": "json_length", "path": "$.data.options", "expected": 3}
-{"type": "var_equals", "name": "question_id", "expected": "q_api_failures"}
+{"type": "json_contains", "path": "$.message", "expected": "成功"}
+{"type": "json_length", "path": "$.data.items", "expected": 3}
+{"type": "var_equals", "name": "item_id", "expected": "item_001"}
 ```
 
-## JSON Path Subset
+## JSON Path 支持范围
 
-Scripts support a small, deterministic subset:
+脚本只支持一小部分稳定、可预测的 JSON Path：
 
-- Root starts with `$`.
-- Dot access: `$.data.id`.
-- Array index: `$.data.options[0]`.
+- 根节点以 `$` 开头。
+- 点访问：`$.data.id`。
+- 数组下标：`$.data.items[0]`。
 
-Do not use filters, wildcards, recursive descent, or complex expressions.
+不要使用过滤器、通配符、递归查找或复杂表达式。
 
-## Templates
+## 变量模板
 
-Any string field can reference variables:
+任意字符串字段都可以引用变量：
 
 ```json
 "path": "/api/items/{{ item_id }}"
 ```
 
-Variable values come from:
+变量来源按优先级依次为：
 
-1. root `variables`
-2. scenario `variables`
-3. prior step `extract`
+1. 根对象 `variables`
+2. 场景对象 `variables`
+3. 前面步骤的 `extract`
 
-## Minimal Example
+## 最小示例
 
 ```json
 {
-  "title": "AI Interviewer Lite API scenarios",
-  "base_url": "http://127.0.0.1:4273",
+  "title": "商品接口自动化场景",
+  "base_url": "http://127.0.0.1:8080",
   "scenarios": [
     {
-      "name": "抽题并提交正确答案",
+      "name": "创建商品后查询商品详情",
       "steps": [
         {
-          "id": "next_question",
-          "name": "抽下一题",
-          "request": {"method": "POST", "path": "/api/quiz/next"},
+          "id": "create_item",
+          "name": "创建商品",
+          "request": {
+            "method": "POST",
+            "path": "/api/items",
+            "body": {
+              "name": "自动化测试商品",
+              "price": 99
+            }
+          },
           "assert": [
             {"type": "status", "expected": 200},
             {"type": "json_path_exists", "path": "$.data.id"}
           ],
           "extract": {
-            "question_id": "$.data.id",
-            "demo_option": "$.data.demoOption"
+            "item_id": "$.data.id"
           }
         },
         {
-          "id": "answer_question",
-          "name": "提交正确答案",
+          "id": "get_item",
+          "name": "查询商品详情",
           "request": {
-            "method": "POST",
-            "path": "/api/quiz/answer",
-            "body": {
-              "questionId": "{{ question_id }}",
-              "selectedOption": "{{ demo_option }}"
-            }
+            "method": "GET",
+            "path": "/api/items/{{ item_id }}"
           },
           "assert": [
             {"type": "status", "expected": 200},
-            {"type": "json_equals", "path": "$.data.correct", "expected": true}
+            {"type": "json_equals", "path": "$.data.name", "expected": "自动化测试商品"}
           ]
         }
       ]

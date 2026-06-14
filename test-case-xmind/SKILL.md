@@ -3,7 +3,7 @@ name: test-case-xmind
 description: 根据产品需求文档、前端技术文档、后端技术文档、交互稿、接口说明、截图和相关项目资料生成结构化软件测试用例；校验用例格式；按“用例标题/前置条件/步骤/预期结果”模板导出 .xmind 脑图文件。适用于生成 QA 测试用例、验收用例、功能用例、回归用例、边界用例，或根据一个或多个输入文档生成 XMind 测试用例脑图。
 ---
 
-# Test Case XMind
+# 测试用例 XMind
 
 ## 概览
 
@@ -97,11 +97,3 @@ python3 scripts/export_xmind.py cases.json --output test-cases.xmind
 ```
 
 这些脚本只使用 Python 标准库，避免安装额外依赖。
-
-## 演示流程
-
-准备丝滑演示时，阅读 `references/demo_flow.md`。推荐流程：
-
-1. 根据输入文档生成并校验 `cases.json`。
-2. 导出 `test-cases.xmind`。
-3. 生成 `.xmind` 后结束操作，由用户自行在 XMind 中打开或导入。

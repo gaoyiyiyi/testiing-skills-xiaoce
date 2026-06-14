@@ -1,49 +1,49 @@
 ---
 name: ui-scenario-automation
-description: Generate and execute browser-based UI scenario checks from requirements, UI docs, screenshots, frontend docs, existing test cases such as cases.json, or a live local page. Use when Codex needs to drive the Codex in-app browser to click, type, navigate, inspect visible UI state, take screenshots, verify user flows, produce UI check reports, create ui-scenarios.json, or optionally export Playwright tests after scenarios are validated.
+description: 根据需求文档、UI 文档、截图、前端文档、已有测试用例（如 cases.json）或可访问的本地页面生成并执行浏览器 UI 场景验证。适用于驱动 Codex 内置浏览器进行点击、输入、导航、检查页面状态、截图取证、验证用户流程、生成 UI 检查报告、创建 ui-scenarios.json；也可在用户明确要求时导出 Playwright 测试。
 ---
 
-# UI Scenario Automation
+# UI 场景自动化
 
-Use this skill to turn product materials or existing test cases into executable UI scenarios, then run those scenarios in the Codex in-app browser. Default to browser execution inside Codex. Do not require Playwright unless the user explicitly asks for reusable code, CI-ready tests, or Playwright export.
+使用本 skill 将产品资料或已有测试用例转换成可执行的 UI 场景，并通过 Codex 内置浏览器执行。默认使用 Codex 浏览器完成交互验证；除非用户明确要求可复用脚本、CI 测试或 Playwright 导出，否则不要强制要求安装 Playwright。
 
-## Workflow
+## 工作流程
 
-1. Collect inputs:
-   - Target URL or local app start command.
-   - Optional `cases.json` from `test-case-xmind`.
-   - Requirements, UI drafts, screenshots, frontend docs, routes, or user-provided flow descriptions.
-   - Test accounts, seeded data, permissions, and actions that need confirmation.
-2. If `cases.json` exists, prioritize it as the source of UI scenarios. Otherwise infer scenarios from docs and the live page.
-3. Read `references/ui_scenario_schema.md` before writing `ui-scenarios.json`.
-4. Read `references/browser_execution.md` before running scenarios in the Codex browser.
-5. Read `references/assertion_rules.md` when choosing assertions and pass/fail criteria.
-6. Generate `ui-scenarios.json` with 3-8 valuable user flows unless the user asks for a narrower set.
-7. Execute scenarios with the Codex in-app browser when the app is reachable.
-8. Capture screenshots for important states, failures, and final evidence.
-9. Deliver a concise report with passed checks, failed checks, screenshots, defects, and blocked items.
-10. Only if requested, read `references/playwright_export_optional.md` and export Playwright tests.
+1. 收集输入：
+   - 目标 URL 或本地应用启动命令。
+   - 可选的 `cases.json`，例如由 `test-case-xmind` 生成的测试用例。
+   - 需求文档、UI 稿、截图、前端文档、路由说明，或用户提供的流程描述。
+   - 测试账号、预置数据、权限信息，以及需要用户确认的操作。
+2. 如果存在 `cases.json`，优先从中选择 UI 场景；否则从文档和当前页面推断场景。
+3. 编写 `ui-scenarios.json` 前，阅读 `references/ui_scenario_schema.md`。
+4. 执行场景前，阅读 `references/browser_execution.md`。
+5. 选择断言和通过/失败标准时，阅读 `references/assertion_rules.md`。
+6. 生成 `ui-scenarios.json`。默认生成 3-8 条有价值的用户流程，除非用户要求更窄范围。
+7. 目标应用可访问时，使用 Codex 内置浏览器执行场景。
+8. 为关键状态、失败点和最终结果截图取证。
+9. 输出简洁报告，包含通过项、失败项、截图、缺陷和阻塞项。
+10. 只有在用户明确要求时，才阅读 `references/playwright_export_optional.md` 并导出 Playwright 测试。
 
-## Scenario Selection Rules
+## 场景选择规则
 
-- Prefer user-visible business flows over isolated click checks.
-- Include at least one happy path and important negative or validation paths.
-- Do not automate destructive or external side-effect actions without explicit user approval.
-- Do not enter sensitive data unless the user explicitly supplied it for this target.
-- Keep checks deterministic. Avoid real payments, real emails, real production mutations, or irreversible actions.
-- If a case is better suited to API checks, hand it to `api-scenario-automation` instead of forcing it through the UI.
+- 优先选择用户可见的业务路径，而不是孤立点击检查。
+- 至少包含一条正向路径，并覆盖重要的反向或校验路径。
+- 未经用户明确确认，不要自动执行破坏性操作或会产生外部副作用的操作。
+- 未经用户明确提供，不要输入敏感数据。
+- 保持检查确定性。避免真实支付、真实邮件、真实生产数据变更或不可逆操作。
+- 如果某条用例更适合接口层验证，应交给 `api-scenario-automation`，不要强行通过 UI 执行。
 
-## Relationship To Other Skills
+## 与其他 skill 的关系
 
-Use `test-case-xmind` before this skill when the user wants to derive test cases from product documents. Consume its `cases.json` as the UI case pool.
+当用户希望从产品资料生成测试用例时，可以先使用 `test-case-xmind`，再消费其输出的 `cases.json` 作为 UI 场景来源。
 
-Use `api-scenario-automation` for backend-heavy checks, data combinations, permission matrices, or workflows where UI execution adds little value.
+后端状态流转、数据组合、权限矩阵或 UI 执行收益较低的流程，更适合交给 `api-scenario-automation`。
 
-This skill handles the user-facing path: page navigation, input, visible states, validation messages, disabled/enabled controls, modals, and final UI evidence.
+本 skill 关注用户可见路径：页面导航、输入、可见状态、校验文案、禁用/启用状态、弹窗、最终页面证据。
 
-## Output Layout
+## 输出结构
 
-Default output directory:
+默认输出目录：
 
 ```text
 ui-check-report/
@@ -54,8 +54,8 @@ ui-check-report/
     └── 02-result.png
 ```
 
-`ui-scenarios.json` is the scenario source of truth. The report is execution evidence, not the source definition.
+`ui-scenarios.json` 是场景源文件；`report.md` 是执行证据，不是场景定义。
 
-## Browser Requirement
+## 浏览器要求
 
-Use the Codex in-app browser when available. If Browser is not available, state that interactive browser execution is blocked and still deliver `ui-scenarios.json` plus instructions for manual or Playwright execution.
+优先使用 Codex 内置浏览器。若当前环境无法使用浏览器执行，应说明交互式浏览器执行受阻，并仍然交付 `ui-scenarios.json`，同时给出手动执行或导出 Playwright 的后续方案。

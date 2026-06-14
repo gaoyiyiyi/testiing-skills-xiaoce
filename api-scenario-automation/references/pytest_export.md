@@ -1,51 +1,53 @@
-# Pytest Export Guidance
+# Pytest/Unittest 导出说明
 
-The exporter creates a self-contained `tests/test_api_scenarios.py` file with:
+导出脚本会生成一个自包含的 `tests/test_api_scenarios.py` 文件，包含：
 
-- embedded scenario definitions
-- a tiny JSON path reader
-- `{{ variable }}` template rendering
-- ordered step execution
-- standard-library HTTP calls
-- `unittest` dynamic test methods, which pytest can also collect
+- 内嵌的场景定义。
+- 简单的 JSON Path 读取器。
+- `{{ variable }}` 变量模板渲染。
+- 按顺序执行场景步骤。
+- 基于 Python 标准库的 HTTP 请求。
+- 动态生成的 `unittest` 测试方法，同时也可以被 pytest 收集执行。
 
-## Runtime Environment
+## 运行环境
 
-Generated tests read:
+生成的测试读取以下环境变量：
 
-- `API_BASE_URL`: overrides root `base_url`.
-- `API_TIMEOUT`: request timeout in seconds, default `10`.
+- `API_BASE_URL`：覆盖场景文件中的 `base_url`。
+- `API_TIMEOUT`：请求超时时间，单位秒，默认 `10`。
 
-Example:
+示例：
 
 ```bash
-API_BASE_URL=http://127.0.0.1:4273 python3 -m unittest discover api-automation/tests
+API_BASE_URL=http://127.0.0.1:8080 python3 -m unittest discover api-automation/tests
 ```
 
-## Dependency Policy
+## 依赖策略
 
-The generated test suite uses Python standard library only. It can be run with `python3 -m unittest` or collected by pytest if pytest is available. Do not add project-specific dependencies unless the user asks.
+生成的测试套件只使用 Python 标准库。它可以通过 `python3 -m unittest` 运行；如果项目安装了 pytest，也可以被 pytest 收集执行。
 
-## Assertion Strategy
+除非用户明确要求，不要额外引入项目依赖。
 
-For each step, assert:
+## 断言策略
 
-1. status code
-2. required response fields
-3. cross-step business outcome when possible
+每个步骤至少断言：
 
-When docs do not define exact error status codes, prefer assertions that match observable contract from the docs. For example, if docs show an error JSON with `message`, assert status is one of `[400, 422]` only when implementation is unknown; if the actual app is available, inspect and pin the observed status.
+1. 状态码。
+2. 必要响应字段。
+3. 能体现跨步骤业务结果的字段。
 
-## Data Strategy
+如果文档没有定义精确错误码，优先使用文档中可观察到的契约作为断言依据。例如，如果文档只说明错误响应会返回 `message`，但没有明确状态码，在无法访问真实应用时可以使用较宽松的状态码范围；如果真实应用可访问，应以实际观察到的状态码为准。
 
-For apps with persistence:
+## 数据策略
 
-- generate unique names with a timestamp or UUID variable
-- create data through public APIs
-- clean up through public APIs when supported
-- avoid direct database writes unless the user explicitly asks
+对于有持久化数据的应用：
 
-For stateless demo apps:
+- 使用时间戳或 UUID 生成唯一测试数据。
+- 通过公开接口创建测试数据。
+- 如果提供清理接口，优先通过公开接口清理数据。
+- 除非用户明确要求，不要直接写数据库。
 
-- keep scenarios independent
-- avoid assumptions about order unless the API contract states it
+对于无状态应用：
+
+- 保持场景之间相互独立。
+- 除非接口契约明确要求，不要依赖接口调用顺序。
